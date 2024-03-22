@@ -49,3 +49,13 @@ repos:
         language: system
         files: \.pyi?$
         pass_filenames: false
+    -   id: poetry-uic
+        name: Generate python code by uic
+        entry: poetry
+        args:
+        -   run
+        -   python
+        -   .pre-commit/uic.py
+        -   -Comcpyimage/ui
+        language: system
+        files: \.ui$
