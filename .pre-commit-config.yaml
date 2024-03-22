@@ -6,6 +6,7 @@ repos:
     hooks:
     -   id: trailing-whitespace
     -   id: end-of-file-fixer
+        exclude: /ui/.*\.py$
     -   id: check-yaml
     -   id: check-added-large-files
 -   repo: local
@@ -16,18 +17,18 @@ repos:
         args:
         -   run
         -   black
-        -   .
         language: system
-        pass_filenames: false
+        files: \.pyi?$
+        exclude: /ui/.*\.py$
     -   id: poetry-isort
         name: Format python code by isort
         entry: poetry
         args:
         -   run
         -   isort
-        -   .
         language: system
-        pass_filenames: false
+        files: \.pyi?$
+        exclude: /ui/.*\.py$
     -   id: poetry-pflake8
         name: Check python code by pflake8
         entry: poetry
@@ -35,6 +36,7 @@ repos:
         -   run
         -   pflake8
         language: system
+        files: \.pyi?$
         pass_filenames: false
     -   id: poetry-mypy
         name: Check python code by mypy
@@ -45,4 +47,5 @@ repos:
         -   --strict
         -   .
         language: system
+        files: \.pyi?$
         pass_filenames: false
