@@ -43,6 +43,7 @@ line-length = 79
 
 [tool.flake8]
 exclude = ".venv"
+extend-exclude = "**/ui/*,"
 
 [tool.isort]
 profile = "black"
