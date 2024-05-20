@@ -9,11 +9,12 @@ from typing import IO
 import click
 import tomllib
 from PySide6 import QtAsyncio
-from PySide6.QtCore import QCoreApplication
+from PySide6.QtWidgets import QApplication
 
 from . import builder
 from .builder import OpenmodelicaPythonImage
 from .config import Config
+from .widget.mainwindow import MainWindow
 
 
 @click.command
@@ -63,7 +64,11 @@ def main(config_io: IO[bytes], limit: int) -> None:
         for image in sorted(images):
             print(image)
 
-    QCoreApplication()
+    QApplication()
+
+    mainWindow = MainWindow()
+    mainWindow.show()
+
     QtAsyncio.run(impl(), keep_running=False)
 
 
