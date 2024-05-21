@@ -38,3 +38,12 @@ repos:
         -   .
         language: system
         pass_filenames: false
+    -   id: uic
+        name: Generate python code by uic
+        entry: python
+        args:
+        -   .pre-commit/uic.py
+        -   --input-dir=src/ui/
+        -   --output-dir=omcpyimage/ui
+        language: system
+        files: ^src/ui/.*\.ui$
