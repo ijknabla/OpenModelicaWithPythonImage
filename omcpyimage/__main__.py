@@ -25,6 +25,11 @@ from .widget.mainwindow import MainWindow
 )
 @click.option("--limit", type=int, default=1)
 def main(config_io: IO[bytes], limit: int) -> None:
+    QApplication()
+
+    mainWindow = MainWindow()
+    mainWindow.show()
+
     async def impl() -> None:
         config = Config.model_validate(tomllib.load(config_io))
 
@@ -63,11 +68,6 @@ def main(config_io: IO[bytes], limit: int) -> None:
         await gather(*(image.push() for image in images))
         for image in sorted(images):
             print(image.image)
-
-    QApplication()
-
-    mainWindow = MainWindow()
-    mainWindow.show()
 
     QtAsyncio.run(impl(), keep_running=False)
 
