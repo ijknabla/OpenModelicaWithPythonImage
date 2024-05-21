@@ -51,6 +51,13 @@ module = [
 ]
 ignore_missing_imports = true
 
+[[tool.mypy.overrides]]
+module = [
+    "omcpyimage.ui.*",
+]
+disallow_untyped_defs = false
+disallow_untyped_calls = false
+
 [tool.ruff]
 extend-exclude = [
     "*/ui/*.py"
