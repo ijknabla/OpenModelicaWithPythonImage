@@ -62,7 +62,7 @@ def main(config_io: IO[bytes], limit: int) -> None:
             await gather(*(image.build() for image in sorted(group)))
         await gather(*(image.push() for image in images))
         for image in sorted(images):
-            print(image)
+            print(image.image)
 
     QApplication()
 
