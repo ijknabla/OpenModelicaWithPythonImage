@@ -1,6 +1,6 @@
 from typing import Annotated
 
-from pydantic import BaseModel, Field, PlainSerializer, PlainValidator
+from pydantic import BaseModel, ConfigDict, Field, PlainSerializer, PlainValidator
 
 from .types import ShortVersion
 
@@ -26,5 +26,7 @@ AnnotatedShortVersion = Annotated[
 
 
 class Config(BaseModel):
+    model_config = ConfigDict(frozen=True)
+
     from_: list[str] = Field(alias="from")
     python: list[AnnotatedShortVersion]
