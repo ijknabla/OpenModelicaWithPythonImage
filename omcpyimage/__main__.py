@@ -31,6 +31,8 @@ def main(config_io: IO[bytes], limit: int) -> None:
     mainWindow.show()
 
     async def impl() -> None:
+        await mainWindow.main()
+
         config = Config.model_validate(tomllib.load(config_io))
 
         pythons = await builder.search_python_versions(config.python)

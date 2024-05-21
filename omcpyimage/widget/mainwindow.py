@@ -9,3 +9,6 @@ class MainWindow(QMainWindow):
 
         self.ui = Ui_MainWindow()
         self.ui.setupUi(self)  # type: ignore[no-untyped-call]
+
+    async def main(self) -> None:
+        pass
