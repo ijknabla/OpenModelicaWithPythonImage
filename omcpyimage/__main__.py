@@ -7,13 +7,11 @@ from operator import itemgetter
 from typing import IO
 
 import click
-import tomllib
 from PySide6 import QtAsyncio
 from PySide6.QtWidgets import QApplication
 
 from . import builder
 from .builder import OpenmodelicaPythonImage
-from .config import Config
 from .widget.mainwindow import MainWindow
 
 
@@ -31,13 +29,17 @@ def main(config_io: IO[bytes], limit: int) -> None:
     mainWindow.show()
 
     async def impl() -> None:
+        mainWindow.setConfig(config_io)
+        if mainWindow.config is None:
+            raise RuntimeError
+
         await mainWindow.main()
 
-        config = Config.model_validate(tomllib.load(config_io))
+        pythons = await builder.search_python_versions(mainWindow.config.python)
 
-        pythons = await builder.search_python_versions(config.python)
-
-        ubuntu_openmodelica = await builder.categorize_by_ubuntu_release(config.from_)
+        ubuntu_openmodelica = await builder.categorize_by_ubuntu_release(
+            mainWindow.config.from_
+        )
 
         images = {
             OpenmodelicaPythonImage(

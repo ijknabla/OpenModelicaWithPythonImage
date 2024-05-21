@@ -1,6 +1,6 @@
 from __future__ import annotations
 
-from typing import IO, Generic, TypeVar, cast, final
+from typing import IO, Self
 
 import tomllib
 from PySide6.QtWidgets import QMainWindow, QWidget
@@ -8,12 +8,9 @@ from PySide6.QtWidgets import QMainWindow, QWidget
 from omcpyimage.config import Config
 from omcpyimage.ui.mainwindow import Ui_MainWindow
 
-ConfigType = TypeVar("ConfigType", Config, None)
 
-
-@final
-class MainWindow(QMainWindow, Generic[ConfigType]):
-    def __init__(self: MainWindow[None], parent: QWidget | None = None) -> None:
+class MainWindow(QMainWindow):
+    def __init__(self, parent: QWidget | None = None) -> None:
         super().__init__(parent)
 
         self.__config = None
@@ -21,20 +18,19 @@ class MainWindow(QMainWindow, Generic[ConfigType]):
         self.ui = Ui_MainWindow()
         self.ui.setupUi(self)  # type: ignore[no-untyped-call]
 
-    __config: ConfigType
+    __config: Config | None
 
     @property
-    def config(self) -> ConfigType:
+    def config(self) -> Config | None:
         return self.__config
 
-    def setConfig(self, config: Config | IO[bytes]) -> MainWindow[Config]:
+    def setConfig(self, config: Config | IO[bytes]) -> Self:
         if not isinstance(config, Config):
             return self.setConfig(Config.model_validate(tomllib.load(config)))
 
-        _self = cast(MainWindow[Config], self)  # type: ignore[redundant-cast]
-        _self.__config = config
+        self.__config = config
 
-        return _self
+        return self
 
     async def main(self) -> None:
         pass
