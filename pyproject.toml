@@ -51,6 +51,11 @@ module = [
 ]
 ignore_missing_imports = true
 
+[tool.ruff]
+extend-exclude = [
+    "*/ui/*.py"
+]
+
 [tool.ruff.lint]
 # https://docs.astral.sh/ruff/rules/
 select = [
