@@ -1,7 +1,8 @@
 from __future__ import annotations
 
-from typing import Generic, TypeVar, final
+from typing import IO, Generic, TypeVar, cast, final
 
+import tomllib
 from PySide6.QtWidgets import QMainWindow, QWidget
 
 from omcpyimage.config import Config
@@ -25,6 +26,15 @@ class MainWindow(QMainWindow, Generic[ConfigType]):
     @property
     def config(self) -> ConfigType:
         return self.__config
+
+    def setConfig(self, config: Config | IO[bytes]) -> MainWindow[Config]:
+        if not isinstance(config, Config):
+            return self.setConfig(Config.model_validate(tomllib.load(config)))
+
+        _self = cast(MainWindow[Config], self)  # type: ignore[redundant-cast]
+        _self.__config = config
+
+        return _self
 
     async def main(self) -> None:
         pass
