@@ -1,9 +1,10 @@
 from __future__ import annotations
 
+import enum
 import re
 from asyncio import subprocess
 from collections import defaultdict
-from collections.abc import AsyncIterator, Mapping, Sequence
+from collections.abc import AsyncIterator, Mapping, MutableSequence, Sequence
 from importlib.resources import as_file, files
 from typing import NewType, Self
 
@@ -12,14 +13,14 @@ from pydantic import BaseModel, ConfigDict
 _URI = NewType("_URI", str)
 _TargetName = NewType("_TargetName", str)
 
-OPENMODELICA_URI = "https://github.com/OpenModelica/OpenModelica.git"
-PYTHON_URI = "https://github.com/python/cpython.git"
+OPENMODELICA_URI = _URI("https://github.com/OpenModelica/OpenModelica.git")
+PYTHON_URI = _URI("https://github.com/python/cpython.git")
 
 
 async def categorize_version(
     uri: _URI,
-) -> dict[tuple[int, int], tuple[int, int, int]]:
-    result = defaultdict(lambda: set())
+) -> dict[tuple[int, int], set[tuple[int, int, int]]]:
+    result = defaultdict[tuple[int, int], set[tuple[int, int, int]]](lambda: set())
     async for v in _iter_tags_in_remote(uri):
         result[v[:2]].add(v)
     return dict(sorted(result.items()))
@@ -41,6 +42,13 @@ async def _iter_tags_in_remote(uri: _URI) -> AsyncIterator[tuple[int, int, int]]
 
 class DockerBake(BaseModel):
     model_config = ConfigDict(extra="allow")
+
+    class _Target(BaseModel):
+        model_config = ConfigDict(extra="allow")
+
+        tags: MutableSequence[str]
+
+    target: Mapping[str, _Target]
 
     async def build(self, indent: int | None) -> int:
         with as_file(files(__name__)) as package_directory:
@@ -98,3 +106,31 @@ class Target(BaseModel):
             PY_MINOR=PY_MINOR,
             PY_PATCH=PY_PATCH,
         )
+
+    def as_key(
+        self, *, openmodelica: VersionFormat, python: VersionFormat
+    ) -> tuple[tuple[int, ...], tuple[int, ...]]:
+        return (
+            self.openmodelica[: openmodelica.value],
+            self.python[: python.value],
+        )
+
+    def as_tag(
+        self, *, repository: str, openmodelica: VersionFormat, python: VersionFormat
+    ) -> str:
+        _openmodelica, _python = self.as_key(openmodelica=openmodelica, python=python)
+        return "{}:v{}-python{}".format(
+            repository,
+            ".".join(map(str, _openmodelica)),
+            ".".join(map(str, _python)),
+        )
+
+
+@enum.unique
+class VersionFormat(enum.Enum):
+    short = 2
+    long = 3
+
+
+SHORT = VersionFormat.short
+LONG = VersionFormat.long
