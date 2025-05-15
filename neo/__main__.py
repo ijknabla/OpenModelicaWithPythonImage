@@ -55,7 +55,7 @@ async def main(*, repository: str, indent: int | None) -> None:
                 )
             ].append(target)
         for tag, _targets in category.items():
-            docker_bake.target[max(_targets).name].tags.append(tag)  # type: ignore [type-var]
+            docker_bake.target[max(_targets).name].tags.append(tag)
 
     if returncode := await docker_bake.build(indent=indent):
         sys.exit(returncode)

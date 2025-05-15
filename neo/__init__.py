@@ -5,6 +5,7 @@ import re
 from asyncio import subprocess
 from collections import defaultdict
 from collections.abc import AsyncIterator, Mapping, MutableSequence, Sequence
+from functools import total_ordering
 from importlib.resources import as_file, files
 from typing import NewType, Self
 
@@ -81,6 +82,7 @@ class DockerBake(BaseModel):
         )
 
 
+@total_ordering
 class Target(BaseModel):
     openmodelica: tuple[int, int, int]
     python: tuple[int, int, int]
@@ -124,6 +126,9 @@ class Target(BaseModel):
             ".".join(map(str, _openmodelica)),
             ".".join(map(str, _python)),
         )
+
+    def __lt__(self, other: Self) -> bool:
+        return self.openmodelica < other.openmodelica and self.python < other.python
 
 
 @enum.unique
