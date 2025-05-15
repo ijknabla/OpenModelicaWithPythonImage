@@ -35,7 +35,7 @@ async def main(*, repository: str, indent: int | None) -> None:
         for openmodelica_short, openmodelica_long in openmodelica.items()
         if (1, 20) <= openmodelica_short
         for python_short, python_long in python.items()
-        if (3, 9) <= python_short
+        if (3, 8) <= python_short
     ]
 
     docker_bake = DockerBake.from_targets(targets)
