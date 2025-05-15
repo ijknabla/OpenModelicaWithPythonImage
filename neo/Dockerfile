@@ -6,7 +6,7 @@ ARG PY_MINOR
 ARG PY_PATCH
 
 
-FROM ubuntu:22.04 AS openmodelica
+FROM ubuntu:24.04 AS openmodelica
 
 ARG OM_MAJOR
 ARG OM_MINOR
@@ -36,7 +36,7 @@ RUN \
     && make -C /build -j4 install \
     && rm -rf /source /build
 
-FROM ubuntu:22.04 AS python
+FROM ubuntu:24.04 AS python
 
 ARG PY_MAJOR
 ARG PY_MINOR
@@ -62,7 +62,7 @@ RUN \
     && rm -rf /source \
     && find /artifact/usr -type l | xargs rm
 
-FROM ubuntu:22.04 AS final
+FROM ubuntu:24.04 AS final
 
 ARG PY_MAJOR
 ARG PY_MINOR
