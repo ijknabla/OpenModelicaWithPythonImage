@@ -29,11 +29,12 @@ async def main(*, repository: str, indent: int | None) -> None:
 
     targets = [
         Target(
-            openmodelica=max(openmodelica_long),
+            openmodelica=openmodelica,
             python=max(python_long),
         )
         for openmodelica_short, openmodelica_long in openmodelica.items()
         if (1, 20) <= openmodelica_short
+        for openmodelica in openmodelica_long
         for python_short, python_long in python.items()
         if (3, 8) <= python_short
     ]
