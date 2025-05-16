@@ -14,6 +14,7 @@ RUN \
     git ca-certificates \
     autoconf cmake make \
     gcc g++ gfortran-11 default-jre \
+    flex \
     libcurl4-openssl-dev uuid-dev libexpat1-dev \
     libblas-dev liblapack-dev \
     && rm -rf /var/lib/apt/lists/*
