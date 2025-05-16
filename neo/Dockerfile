@@ -5,13 +5,7 @@ ARG PY_MAJOR
 ARG PY_MINOR
 ARG PY_PATCH
 
-
-FROM ubuntu:24.04 AS openmodelica
-
-ARG OM_MAJOR
-ARG OM_MINOR
-ARG OM_PATCH
-ENV VERSION=${OM_MAJOR}.${OM_MINOR}.${OM_PATCH}
+FROM ubuntu:24.04 AS build-base
 
 # https://github.com/OpenModelica/OpenModelica/blob/master/OMCompiler/README.Linux.md#11-debianubuntu
 RUN \
@@ -23,6 +17,23 @@ RUN \
     libcurl4-openssl-dev uuid-dev libexpat1-dev \
     libblas-dev liblapack-dev \
     && rm -rf /var/lib/apt/lists/*
+RUN \
+    apt update \
+    && apt install -y --no-install-recommends \
+    ca-certificates clang \
+    libssl-dev zlib1g-dev \
+    libbz2-dev libreadline-dev libsqlite3-dev curl git \
+    libncursesw5-dev xz-utils tk-dev libxml2-dev libxmlsec1-dev libffi-dev liblzma-dev \
+    && rm -rf /var/lib/apt/lists/*
+
+FROM build-base AS openmodelica
+
+ARG OM_MAJOR
+ARG OM_MINOR
+ARG OM_PATCH
+ENV VERSION=${OM_MAJOR}.${OM_MINOR}.${OM_PATCH}
+
+# https://github.com/OpenModelica/OpenModelica/blob/master/OMCompiler/README.Linux.md#11-debianubuntu
 RUN \
     git clone --recursive -b v${VERSION} https://github.com/OpenModelica/OpenModelica.git source \
     && find /source/OMCompiler -name '*.mo' | xargs sed -i 's/System\.userIsRoot()/false/g' \
@@ -36,7 +47,7 @@ RUN \
     && make -C /build -j4 install \
     && rm -rf /source /build
 
-FROM ubuntu:24.04 AS python
+FROM build-base AS python
 
 ARG PY_MAJOR
 ARG PY_MINOR
@@ -44,14 +55,6 @@ ARG PY_PATCH
 ENV VERSION=${PY_MAJOR}.${PY_MINOR}.${PY_PATCH}
 ENV DEBIAN_FRONTEND=noninteractive
 
-RUN \
-    apt update \
-    && apt install -y --no-install-recommends \
-    ca-certificates clang \
-    libssl-dev zlib1g-dev \
-    libbz2-dev libreadline-dev libsqlite3-dev curl git \
-    libncursesw5-dev xz-utils tk-dev libxml2-dev libxmlsec1-dev libffi-dev liblzma-dev \
-    && rm -rf /var/lib/apt/lists/*
 RUN \
     mkdir /source \
     && curl -fsSL https://www.python.org/ftp/python/${VERSION}/Python-${VERSION}.tgz | tar zxf - -C/source --strip-components=1 \
