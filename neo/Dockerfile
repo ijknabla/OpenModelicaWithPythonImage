@@ -11,16 +11,14 @@ FROM ubuntu:24.04 AS build-base
 RUN \
     apt update \
     && apt install -y --no-install-recommends \
+# OpenModelica dependencies
     git ca-certificates \
     autoconf cmake make \
     gcc g++ gfortran-11 default-jre \
     flex \
     libcurl4-openssl-dev uuid-dev libexpat1-dev \
     libblas-dev liblapack-dev \
-    && rm -rf /var/lib/apt/lists/*
-RUN \
-    apt update \
-    && apt install -y --no-install-recommends \
+# Python dependencies
     ca-certificates clang \
     libssl-dev zlib1g-dev \
     libbz2-dev libreadline-dev libsqlite3-dev curl git \
