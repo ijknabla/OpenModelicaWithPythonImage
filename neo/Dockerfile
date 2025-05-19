@@ -32,12 +32,16 @@ ARG OM_MINOR
 ARG OM_PATCH
 ENV VERSION=${OM_MAJOR}.${OM_MINOR}.${OM_PATCH}
 
+RUN \
+    git clone --recursive -b v${VERSION} https://github.com/OpenModelica/OpenModelica.git source
+
+RUN \
+    find /source/OMCompiler -name '*.mo' | xargs sed -i 's/System\.userIsRoot()/false/g' \
+    && find /source/OMCompiler -name CMakeLists.txt | xargs sed -i 's/https:\/\/build.openmodelica.org\/omc\/bootstrap/https:\/\/build.openmodelica.org\/old\/bootstrap/g'
+
 # https://github.com/OpenModelica/OpenModelica/blob/master/OMCompiler/README.Linux.md#11-debianubuntu
 RUN \
-    git clone --recursive -b v${VERSION} https://github.com/OpenModelica/OpenModelica.git source \
-    && find /source/OMCompiler -name '*.mo' | xargs sed -i 's/System\.userIsRoot()/false/g' \
-    && find /source/OMCompiler -name CMakeLists.txt | xargs sed -i 's/https:\/\/build.openmodelica.org\/omc\/bootstrap/https:\/\/build.openmodelica.org\/old\/bootstrap/g' \
-    && cmake -S /source -B /build \
+    cmake -S /source -B /build \
     -DOM_USE_CCACHE=OFF -DCMAKE_BUILD_TYPE=MinSizeRel \
     -DCMAKE_Fortran_COMPILER=gfortran-11 \
     -DOM_ENABLE_GUI_CLIENTS=OFF -DOM_OMC_ENABLE_CPP_RUNTIME=OFF \
@@ -56,8 +60,10 @@ ENV DEBIAN_FRONTEND=noninteractive
 
 RUN \
     mkdir /source \
-    && curl -fsSL https://www.python.org/ftp/python/${VERSION}/Python-${VERSION}.tgz | tar zxf - -C/source --strip-components=1 \
-    && cd /source \
+    && curl -fsSL https://www.python.org/ftp/python/${VERSION}/Python-${VERSION}.tgz | tar zxf - -C/source --strip-components=1
+
+RUN \
+    cd /source \
     && ./configure --enable-optimizations --without-static-libpython --prefix /artifact/usr \
     && make -j4 \
     && make install \
