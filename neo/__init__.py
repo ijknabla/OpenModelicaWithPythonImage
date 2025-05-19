@@ -12,6 +12,7 @@ from typing import NewType, Self
 from pydantic import BaseModel, ConfigDict
 
 _URI = NewType("_URI", str)
+_Ref = NewType("_Ref", str)
 _TargetName = NewType("_TargetName", str)
 
 OPENMODELICA_URI = _URI("https://github.com/OpenModelica/OpenModelica.git")
@@ -39,6 +40,26 @@ async def _iter_tags_in_remote(uri: _URI) -> AsyncIterator[tuple[int, int, int]]
         ):
             major, minor, patch = map(int, matched.group("version").split(b"."))
             yield major, minor, patch
+
+
+async def listup_tags_in_remote(uri: _URI) -> list[_Ref]:
+    return [tag async for tag in _iter_tags_in_remote2(uri)]
+
+
+async def _iter_tags_in_remote2(uri: _URI) -> AsyncIterator[_Ref]:
+    process = await subprocess.create_subprocess_exec(
+        "git", "ls-remote", "--tags", uri, stdout=subprocess.PIPE
+    )
+    if process.stdout is None:
+        raise RuntimeError
+
+    pattern = re.compile(rb"^[a-z0-9]{40}\s*refs/tags/(?P<version>\S*)\s*$")
+
+    async for buffer in process.stdout:
+        if (matched := pattern.match(buffer)) is None:
+            message = f"{buffer=!r}"
+            raise ValueError(message)
+        yield _Ref(matched.group("version").decode(encoding="ascii"))
 
 
 class DockerBake(BaseModel):
