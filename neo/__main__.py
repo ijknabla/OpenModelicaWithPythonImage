@@ -27,16 +27,22 @@ async def main(*, repository: str, indent: int | None) -> None:
         categorize_version(PYTHON_URI),
     )
 
+    python_version = max(
+        long
+        for longs in python.values()
+        for long in longs
+    )
+
     targets = [
         Target(
-            openmodelica=openmodelica,
-            python=max(python_long),
+            openmodelica=min(openmodelica_long),
+            python=python_version,
         )
         for openmodelica_short, openmodelica_long in openmodelica.items()
         if (1, 20) <= openmodelica_short
-        for openmodelica in openmodelica_long
-        for python_short, python_long in python.items()
-        if (3, 8) <= python_short
+        # for openmodelica in openmodelica_long
+        # for python_short, python_long in python.items()
+        # if (3, 8) <= python_short
     ]
 
     docker_bake = DockerBake.from_targets(targets)
