@@ -50,25 +50,25 @@ RUN \
     && make -C /build -j4 install \
     && rm -rf /source /build
 
-FROM build-base AS python
+# FROM build-base AS python
 
-ARG PY_MAJOR
-ARG PY_MINOR
-ARG PY_PATCH
-ENV VERSION=${PY_MAJOR}.${PY_MINOR}.${PY_PATCH}
-ENV DEBIAN_FRONTEND=noninteractive
+# ARG PY_MAJOR
+# ARG PY_MINOR
+# ARG PY_PATCH
+# ENV VERSION=${PY_MAJOR}.${PY_MINOR}.${PY_PATCH}
+# ENV DEBIAN_FRONTEND=noninteractive
 
-RUN \
-    mkdir /source \
-    && curl -fsSL https://www.python.org/ftp/python/${VERSION}/Python-${VERSION}.tgz | tar zxf - -C/source --strip-components=1
+# RUN \
+#     mkdir /source \
+#     && curl -fsSL https://www.python.org/ftp/python/${VERSION}/Python-${VERSION}.tgz | tar zxf - -C/source --strip-components=1
 
-RUN \
-    cd /source \
-    && ./configure --enable-optimizations --without-static-libpython --prefix /artifact/usr \
-    && make -j4 \
-    && make install \
-    && rm -rf /source \
-    && find /artifact/usr -type l | xargs rm
+# RUN \
+#     cd /source \
+#     && ./configure --enable-optimizations --without-static-libpython --prefix /artifact/usr \
+#     && make -j4 \
+#     && make install \
+#     && rm -rf /source \
+#     && find /artifact/usr -type l | xargs rm
 
 FROM ubuntu:24.04 AS final
 
@@ -89,12 +89,12 @@ RUN \
     libncursesw6 tk libxml2 libxmlsec1 libffi8 liblzma5 \
     && rm -rf /var/lib/apt/lists/*
 COPY --from=openmodelica /artifact/usr/ /usr/
-COPY --from=python /artifact/usr/ /usr/
-RUN \
-    if which 2to3-${PY_SHORT_VERSION} > /dev/null; \
-        then update-alternatives --install /usr/bin/2to3   2to3   /usr/bin/2to3-${PY_SHORT_VERSION}  10; fi \
-    &&       update-alternatives --install /usr/bin/idle   idle   /usr/bin/idle${PY_SHORT_VERSION}   10  \
-    &&       update-alternatives --install /usr/bin/pip    pip    /usr/bin/pip${PY_SHORT_VERSION}    10  \
-    &&       update-alternatives --install /usr/bin/pydoc  pydoc  /usr/bin/pydoc${PY_SHORT_VERSION}  10  \
-    &&       update-alternatives --install /usr/bin/python python /usr/bin/python${PY_SHORT_VERSION} 10  \
-    && ln -s / /artifact
+# COPY --from=python /artifact/usr/ /usr/
+# RUN \
+#     if which 2to3-${PY_SHORT_VERSION} > /dev/null; \
+#         then update-alternatives --install /usr/bin/2to3   2to3   /usr/bin/2to3-${PY_SHORT_VERSION}  10; fi \
+#     &&       update-alternatives --install /usr/bin/idle   idle   /usr/bin/idle${PY_SHORT_VERSION}   10  \
+#     &&       update-alternatives --install /usr/bin/pip    pip    /usr/bin/pip${PY_SHORT_VERSION}    10  \
+#     &&       update-alternatives --install /usr/bin/pydoc  pydoc  /usr/bin/pydoc${PY_SHORT_VERSION}  10  \
+#     &&       update-alternatives --install /usr/bin/python python /usr/bin/python${PY_SHORT_VERSION} 10  \
+#     && ln -s / /artifact
